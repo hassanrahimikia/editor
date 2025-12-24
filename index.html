@@ -20,19 +20,17 @@
             <h2>حالت ویرایش</h2>
             <input type="text" id="titleEdit" placeholder="عنوان" class="input-field">
             
-            <div class="section">
-                <h3>محتوای متنی:</h3>
-                <textarea id="textEdit" rows="10" class="textarea-field"></textarea>
+            <div id="cellsContainer"></div>
+            
+            <div class="add-buttons">
+                <button id="addTextBtn" class="add-btn">➕ افزودن متن</button>
+                <button id="addCodeBtn" class="add-btn">➕ افزودن کد</button>
             </div>
 
-            <div class="section">
-                <h3>کد (به تفکیک با --- ):</h3>
-                <textarea id="codeEdit" rows="15" class="textarea-field"></textarea>
-                <small>فرمت: زبان|کد --- زبان|کد</small>
+            <div class="action-buttons">
+                <button id="saveBtn" class="save-btn">💾 ذخیره تغییرات</button>
+                <button id="cancelBtn" class="cancel-btn">✖ انصراف</button>
             </div>
-
-            <button id="saveBtn" class="save-btn">ذخیره تغییرات</button>
-            <button id="cancelBtn" class="cancel-btn">انصراف</button>
         </div>
     </div>
 
