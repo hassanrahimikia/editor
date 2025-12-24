@@ -1,188 +1,206 @@
-const PASSWORD = '13820510';
-
 let data = {
-    title: 'ارائه برنامه‌نویسی',
+    title: "ارائه من",
     cells: [
-        { 
-            type: 'text', 
-            content: 'به ارائه برنامه‌نویسی خوش آمدید!\n\nاین یک سیستم ارائه قدرتمند با قابلیت نمایش متن و کد است.' 
+        {
+            type: "text",
+            content: "این یک متن نمونه است.\nمی‌توانید آن را ویرایش کنید."
         },
-        { 
-            type: 'code', 
-            lang: 'python', 
-            content: 'def fibonacci(n):\n    if n <= 1:\n        return n\n    return fibonacci(n-1) + fibonacci(n-2)\n\nprint(fibonacci(10))' 
-        },
-        { 
-            type: 'text', 
-            content: 'در بالا یک تابع بازگشتی فیبوناچی به زبان پایتون مشاهده می‌کنید.' 
-        },
-        { 
-            type: 'code', 
-            lang: 'javascript', 
-            content: 'const greet = (name) => {\n    return `Hello, ${name}!`;\n};\n\nconsole.log(greet("World"));' 
+        {
+            type: "code",
+            language: "python",
+            content: "def hello():\n    print('Hello, World!')"
         }
     ]
 };
 
-// بارگذاری داده‌ها از LocalStorage
 function loadData() {
     const saved = localStorage.getItem('presentationData');
     if (saved) {
         try {
             data = JSON.parse(saved);
-            console.log('✅ داده‌ها از LocalStorage بارگذاری شد:', data);
         } catch (e) {
-            console.error('❌ خطا در بارگذاری داده‌ها:', e);
+            console.error('Error loading data:', e);
         }
-    } else {
-        console.log('ℹ️ داده‌ای در LocalStorage یافت نشد، از داده‌های پیش‌فرض استفاده می‌شود');
     }
 }
 
-// ذخیره‌سازی داده‌ها در LocalStorage
 function saveData() {
-    localStorage.setItem('presentationData', JSON.stringify(data));
-    console.log('✅ داده‌ها در LocalStorage ذخیره شد:', data);
+    try {
+        localStorage.setItem('presentationData', JSON.stringify(data));
+    } catch (e) {
+        console.error('Error saving data:', e);
+    }
 }
 
-// تبدیل متن به HTML امن
 function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
 }
 
-// رندر کردن حالت مشاهده
 function renderView() {
-    document.getElementById('titleView').textContent = data.title;
-    
-    let contentHTML = '';
-    data.cells.forEach((cell) => {
+    document.getElementById('presentationTitle').textContent = data.title;
+    const contentView = document.getElementById('contentView');
+    contentView.innerHTML = '';
+
+    data.cells.forEach(cell => {
         if (cell.type === 'text') {
-            contentHTML += `<p>${escapeHtml(cell.content)}</p>`;
+            const p = document.createElement('p');
+            p.textContent = cell.content;
+            contentView.appendChild(p);
         } else if (cell.type === 'code') {
-            contentHTML += `
-                <div class="code-container">
-                    <div class="code-label">${escapeHtml(cell.lang.toUpperCase())}</div>
-                    <pre><code class="language-${escapeHtml(cell.lang)}">${escapeHtml(cell.content)}</code></pre>
-                </div>
-            `;
+            const container = document.createElement('div');
+            container.className = 'code-container';
+            
+            const label = document.createElement('div');
+            label.className = 'code-label';
+            label.textContent = cell.language.toUpperCase();
+            
+            const pre = document.createElement('pre');
+            const code = document.createElement('code');
+            code.className = `language-${cell.language}`;
+            code.textContent = cell.content;
+            
+            pre.appendChild(code);
+            container.appendChild(label);
+            container.appendChild(pre);
+            contentView.appendChild(container);
+            
+            hljs.highlightElement(code);
         }
     });
-    
-    document.getElementById('contentView').innerHTML = contentHTML;
-    hljs.highlightAll();
 }
 
-// رندر کردن حالت ویرایش
-function renderEditMode() {
-    document.getElementById('titleEdit').value = data.title;
-    
+function renderEdit() {
+    document.getElementById('titleInput').value = data.title;
     const container = document.getElementById('cellsContainer');
     container.innerHTML = '';
-    
+
     data.cells.forEach((cell, index) => {
         const cellDiv = document.createElement('div');
-        cellDiv.className = 'cell';
-        if (cell.type === 'code') cellDiv.classList.add('code-cell');
+        cellDiv.className = `cell ${cell.type}-cell`;
         
-        const langInput = cell.type === 'code' 
-            ? `<input type="text" value="${escapeHtml(cell.lang)}" placeholder="زبان (python, javascript, ...)" onchange="updateCellLang(${index}, this.value)">` 
-            : '';
+        const header = document.createElement('div');
+        header.className = 'cell-header';
         
-        cellDiv.innerHTML = `
-            <div class="cell-header">
-                <span class="cell-type">${cell.type === 'text' ? '📝 متن' : '💻 کد'}</span>
-                <div class="cell-actions">
-                    <button class="cell-btn move-up" onclick="moveCell(${index}, -1)" ${index === 0 ? 'disabled' : ''}>⬆</button>
-                    <button class="cell-btn move-down" onclick="moveCell(${index}, 1)" ${index === data.cells.length - 1 ? 'disabled' : ''}>⬇</button>
-                    <button class="cell-btn delete-cell" onclick="deleteCell(${index})">🗑</button>
-                </div>
-            </div>
-            ${langInput}
-            <textarea onchange="updateCellContent(${index}, this.value)">${escapeHtml(cell.content)}</textarea>
-        `;
+        const typeLabel = document.createElement('span');
+        typeLabel.className = 'cell-type';
+        typeLabel.textContent = cell.type === 'text' ? '📝 متن' : '💻 کد';
+        
+        const actions = document.createElement('div');
+        actions.className = 'cell-actions';
+        
+        const upBtn = document.createElement('button');
+        upBtn.className = 'cell-btn';
+        upBtn.textContent = '⬆️';
+        upBtn.disabled = index === 0;
+        upBtn.onclick = () => moveCell(index, -1);
+        
+        const downBtn = document.createElement('button');
+        downBtn.className = 'cell-btn';
+        downBtn.textContent = '⬇️';
+        downBtn.disabled = index === data.cells.length - 1;
+        downBtn.onclick = () => moveCell(index, 1);
+        
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'cell-btn';
+        deleteBtn.textContent = '🗑️';
+        deleteBtn.onclick = () => deleteCell(index);
+        
+        actions.appendChild(upBtn);
+        actions.appendChild(downBtn);
+        actions.appendChild(deleteBtn);
+        
+        header.appendChild(typeLabel);
+        header.appendChild(actions);
+        cellDiv.appendChild(header);
+        
+        if (cell.type === 'code') {
+            const langInput = document.createElement('input');
+            langInput.type = 'text';
+            langInput.value = cell.language;
+            langInput.placeholder = 'نام زبان (مثلاً: python)';
+            langInput.oninput = (e) => {
+                data.cells[index].language = e.target.value;
+            };
+            cellDiv.appendChild(langInput);
+        }
+        
+        const textarea = document.createElement('textarea');
+        textarea.value = cell.content;
+        textarea.oninput = (e) => {
+            data.cells[index].content = e.target.value;
+        };
+        cellDiv.appendChild(textarea);
         
         container.appendChild(cellDiv);
     });
 }
 
-// افزودن سلول متنی
 function addTextCell() {
-    data.cells.push({ type: 'text', content: 'متن جدید...' });
-    renderEditMode();
+    data.cells.push({
+        type: 'text',
+        content: 'متن جدید'
+    });
+    renderEdit();
 }
 
-// افزودن سلول کد
 function addCodeCell() {
-    data.cells.push({ type: 'code', lang: 'python', content: '# کد خود را اینجا بنویسید' });
-    renderEditMode();
+    data.cells.push({
+        type: 'code',
+        language: 'python',
+        content: '# کد جدید'
+    });
+    renderEdit();
 }
 
-// به‌روزرسانی محتوای سلول
-function updateCellContent(index, content) {
-    data.cells[index].content = content;
-}
-
-// به‌روزرسانی زبان سلول کد
-function updateCellLang(index, lang) {
-    data.cells[index].lang = lang;
-}
-
-// حذف سلول
-function deleteCell(index) {
-    if (confirm('آیا از حذف این سلول مطمئن هستید؟')) {
-        data.cells.splice(index, 1);
-        renderEditMode();
-    }
-}
-
-// جابجایی سلول
 function moveCell(index, direction) {
     const newIndex = index + direction;
     if (newIndex >= 0 && newIndex < data.cells.length) {
         [data.cells[index], data.cells[newIndex]] = [data.cells[newIndex], data.cells[index]];
-        renderEditMode();
+        renderEdit();
     }
 }
 
-// نمایش حالت ویرایش
-function showEditMode() {
-    const password = prompt('🔒 رمز عبور را وارد کنید:');
-    if (password !== PASSWORD) {
-        alert('❌ رمز عبور اشتباه است!');
-        return;
+function deleteCell(index) {
+    if (confirm('آیا مطمئن هستید که می‌خواهید این سلول را حذف کنید؟')) {
+        data.cells.splice(index, 1);
+        renderEdit();
     }
-    
-    document.getElementById('viewMode').style.display = 'none';
-    document.getElementById('editMode').style.display = 'block';
-    
-    renderEditMode();
 }
 
-// پنهان کردن حالت ویرایش
-function hideEditMode() {
-    document.getElementById('viewMode').style.display = 'block';
-    document.getElementById('editMode').style.display = 'none';
-    renderView();
+function enterEditMode() {
+    const password = prompt('رمز عبور را وارد کنید:');
+    if (password === '13820510') {
+        document.getElementById('viewMode').style.display = 'none';
+        document.getElementById('editMode').style.display = 'block';
+        renderEdit();
+    } else if (password !== null) {
+        alert('رمز عبور اشتباه است!');
+    }
 }
 
-// ذخیره تغییرات
 function saveChanges() {
-    data.title = document.getElementById('titleEdit').value;
+    data.title = document.getElementById('titleInput').value;
     saveData();
+    document.getElementById('editMode').style.display = 'none';
+    document.getElementById('viewMode').style.display = 'block';
     renderView();
-    hideEditMode();
     alert('✅ تغییرات با موفقیت ذخیره شد!');
 }
 
-// Event Listeners
-document.getElementById('editBtn').addEventListener('click', showEditMode);
-document.getElementById('saveBtn').addEventListener('click', saveChanges);
-document.getElementById('cancelBtn').addEventListener('click', hideEditMode);
-document.getElementById('addTextBtn').addEventListener('click', addTextCell);
-document.getElementById('addCodeBtn').addEventListener('click', addCodeCell);
+function cancelEdit() {
+    if (confirm('آیا می‌خواهید بدون ذخیره خارج شوید؟')) {
+        loadData();
+        document.getElementById('editMode').style.display = 'none';
+        document.getElementById('viewMode').style.display = 'block';
+    }
+}
 
-// بارگذاری اولیه
-loadData();
-renderView();
+document.addEventListener('DOMContentLoaded', () => {
+    loadData();
+    renderView();
+    
+    document.getElementById('addTextBtn').addEventListener('click', addTextCell);
+    document.getElementById('addCodeBtn').addEventListener('click', addCodeCell);
+});
