@@ -1,147 +1,258 @@
-const PASSWORD = '13820510';
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;700&display=swap');
 
-let data = {
-    title: 'ارائه برنامه‌نویسی',
-    cells: [
-        { type: 'text', content: 'این یک نمونه ارائه است.\n\nمی‌توانید از دکمه ویرایش برای تغییر محتوا استفاده کنید.' },
-        { type: 'code', lang: 'python', content: 'def hello():\n    print("سلام دنیا")\n\nhello()' },
-        { type: 'text', content: 'در بالا یک کد پایتون دیدید.' },
-        { type: 'code', lang: 'javascript', content: 'function greet() {\n    console.log("Hello World!");\n}\n\ngreet();' }
-    ]
-};
-
-function loadData() {
-    const saved = localStorage.getItem('presentationData');
-    if (saved) {
-        data = JSON.parse(saved);
-    }
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-function saveData() {
-    localStorage.setItem('presentationData', JSON.stringify(data));
+body {
+    font-family: 'Vazirmatn', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
 }
 
-function renderView() {
-    document.getElementById('titleView').textContent = data.title;
-    
-    let contentHTML = '';
-    data.cells.forEach((cell, index) => {
-        if (cell.type === 'text') {
-            contentHTML += `<p>${escapeHtml(cell.content)}</p>`;
-        } else if (cell.type === 'code') {
-            contentHTML += `
-                <div class="code-container">
-                    <div class="code-label">${cell.lang.toUpperCase()}</div>
-                    <pre><code class="language-${cell.lang}">${escapeHtml(cell.content)}</code></pre>
-                </div>
-            `;
-        }
-    });
-    
-    document.getElementById('contentView').innerHTML = contentHTML;
-    hljs.highlightAll();
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    position: relative;
 }
 
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
+.edit-btn {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 14px;
+    transition: all 0.3s;
+    z-index: 10;
 }
 
-function renderEditMode() {
-    document.getElementById('titleEdit').value = data.title;
-    
-    const container = document.getElementById('cellsContainer');
-    container.innerHTML = '';
-    
-    data.cells.forEach((cell, index) => {
-        const cellDiv = document.createElement('div');
-        cellDiv.className = 'cell';
-        if (cell.type === 'code') cellDiv.classList.add('code-cell');
-        
-        cellDiv.innerHTML = `
-            <div class="cell-header">
-                <span class="cell-type">${cell.type === 'text' ? '📝 متن' : '💻 کد'}</span>
-                <div class="cell-actions">
-                    <button class="cell-btn move-up" onclick="moveCell(${index}, -1)" ${index === 0 ? 'disabled' : ''}>⬆</button>
-                    <button class="cell-btn move-down" onclick="moveCell(${index}, 1)" ${index === data.cells.length - 1 ? 'disabled' : ''}>⬇</button>
-                    <button class="cell-btn delete-cell" onclick="deleteCell(${index})">🗑</button>
-                </div>
-            </div>
-            ${cell.type === 'code' ? `<input type="text" value="${cell.lang}" placeholder="زبان (python, js, ...)" onchange="updateCellLang(${index}, this.value)">` : ''}
-            <textarea onchange="updateCellContent(${index}, this.value)">${cell.content}</textarea>
-        `;
-        
-        container.appendChild(cellDiv);
-    });
+.edit-btn:hover {
+    background: #5568d3;
+    transform: translateY(-2px);
 }
 
-function addTextCell() {
-    data.cells.push({ type: 'text', content: '' });
-    renderEditMode();
+h1 {
+    color: #2d3748;
+    margin-bottom: 30px;
+    text-align: center;
+    font-size: 2.5em;
 }
 
-function addCodeCell() {
-    data.cells.push({ type: 'code', lang: 'python', content: '' });
-    renderEditMode();
+h2 {
+    color: #667eea;
+    margin-bottom: 20px;
 }
 
-function updateCellContent(index, content) {
-    data.cells[index].content = content;
+.content {
+    line-height: 1.8;
+    color: #4a5568;
 }
 
-function updateCellLang(index, lang) {
-    data.cells[index].lang = lang;
+.content p {
+    margin-bottom: 15px;
+    white-space: pre-wrap;
 }
 
-function deleteCell(index) {
-    if (confirm('آیا از حذف این سلول مطمئن هستید؟')) {
-        data.cells.splice(index, 1);
-        renderEditMode();
-    }
+pre {
+    background: #1e1e1e;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px 0;
+    overflow-x: auto;
 }
 
-function moveCell(index, direction) {
-    const newIndex = index + direction;
-    if (newIndex >= 0 && newIndex < data.cells.length) {
-        [data.cells[index], data.cells[newIndex]] = [data.cells[newIndex], data.cells[index]];
-        renderEditMode();
-    }
+code {
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
 }
 
-function showEditMode() {
-    const password = prompt('رمز عبور را وارد کنید:');
-    if (password !== PASSWORD) {
-        alert('رمز عبور اشتباه است!');
-        return;
-    }
-    
-    document.getElementById('viewMode').style.display = 'none';
-    document.getElementById('editMode').style.display = 'block';
-    document.getElementById('editBtn').style.display = 'none';
-    
-    renderEditMode();
+.code-container {
+    margin: 20px 0;
 }
 
-function hideEditMode() {
-    document.getElementById('viewMode').style.display = 'block';
-    document.getElementById('editMode').style.display = 'none';
-    document.getElementById('editBtn').style.display = 'block';
+.code-label {
+    background: #4a5568;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 8px 8px 0 0;
+    display: inline-block;
+    font-size: 12px;
+    font-weight: bold;
 }
 
-function saveChanges() {
-    data.title = document.getElementById('titleEdit').value;
-    saveData();
-    renderView();
-    hideEditMode();
-    alert('تغییرات با موفقیت ذخیره شد!');
+.input-field {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 16px;
+    margin-bottom: 20px;
+    transition: border-color 0.3s;
 }
 
-document.getElementById('editBtn').addEventListener('click', showEditMode);
-document.getElementById('saveBtn').addEventListener('click', saveChanges);
-document.getElementById('cancelBtn').addEventListener('click', hideEditMode);
-document.getElementById('addTextBtn').addEventListener('click', addTextCell);
-document.getElementById('addCodeBtn').addEventListener('click', addCodeBtn);
+.input-field:focus {
+    outline: none;
+    border-color: #667eea;
+}
 
-loadData();
-renderView();
+#cellsContainer {
+    margin: 20px 0;
+}
+
+.cell {
+    background: #f7fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    position: relative;
+}
+
+.cell-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.cell-type {
+    background: #667eea;
+    color: white;
+    padding: 5px 12px;
+    border-radius: 5px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.cell-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.cell-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 5px 10px;
+    border-radius: 5px;
+    transition: background 0.3s;
+}
+
+.cell-btn:hover {
+    background: #e2e8f0;
+}
+
+.move-up {
+    color: #4299e1;
+}
+
+.move-down {
+    color: #4299e1;
+}
+
+.delete-cell {
+    color: #fc8181;
+}
+
+.cell textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #cbd5e0;
+    border-radius: 5px;
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 14px;
+    resize: vertical;
+    min-height: 80px;
+}
+
+.cell.code-cell textarea {
+    font-family: 'Courier New', monospace;
+    min-height: 120px;
+}
+
+.cell input[type="text"] {
+    width: 150px;
+    padding: 5px 10px;
+    border: 1px solid #cbd5e0;
+    border-radius: 5px;
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 12px;
+    margin-bottom: 10px;
+}
+
+.add-buttons {
+    display: flex;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.add-btn {
+    flex: 1;
+    padding: 12px;
+    background: #48bb78;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.add-btn:hover {
+    background: #38a169;
+    transform: translateY(-2px);
+}
+
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.save-btn,
+.cancel-btn {
+    flex: 1;
+    padding: 15px;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.save-btn {
+    background: #667eea;
+    color: white;
+}
+
+.save-btn:hover {
+    background: #5568d3;
+    transform: translateY(-2px);
+}
+
+.cancel-btn {
+    background: #fc8181;
+    color: white;
+}
+
+.cancel-btn:hover {
+    background: #f56565;
+    transform: translateY(-2px);
+}
