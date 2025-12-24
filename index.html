@@ -3,43 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ارائه برنامه‌نویسی</title>
-    <link rel="stylesheet" href="style.css">
+    <title>ارائه من</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    
-    <!-- حالت مشاهده -->
-    <div id="viewMode">
-        <div class="container">
-            <h1 id="titleView">ارائه برنامه‌نویسی</h1>
+    <div class="container">
+        <div id="viewMode">
+            <h1 id="presentationTitle">ارائه من</h1>
             <div id="contentView"></div>
-            <button id="editBtn" class="edit-btn">✏️ ویرایش</button>
+            <button class="edit-btn" onclick="enterEditMode()">ویرایش</button>
         </div>
-    </div>
 
-    <!-- حالت ویرایش -->
-    <div id="editMode" style="display: none;">
-        <div class="container">
-            <h2>🔧 حالت ویرایش</h2>
+        <div id="editMode" style="display: none;">
+            <h2>ویرایش ارائه</h2>
             
             <div class="edit-section">
                 <label>عنوان ارائه:</label>
-                <input type="text" id="titleEdit" class="title-input">
-            </div>
-
-            <div class="edit-section">
-                <div class="add-buttons">
-                    <button id="addTextBtn" class="add-btn">📝 افزودن متن</button>
-                    <button id="addCodeBtn" class="add-btn">💻 افزودن کد</button>
-                </div>
+                <input type="text" id="titleInput" class="title-input">
             </div>
 
             <div id="cellsContainer"></div>
 
+            <div class="add-buttons">
+                <button class="add-btn" id="addTextBtn">➕ افزودن متن</button>
+                <button class="add-btn" id="addCodeBtn">➕ افزودن کد</button>
+            </div>
+
             <div class="action-buttons">
-                <button id="saveBtn" class="save-btn">💾 ذخیره تغییرات</button>
-                <button id="cancelBtn" class="cancel-btn">✖ انصراف</button>
+                <button class="save-btn" onclick="saveChanges()">💾 ذخیره تغییرات</button>
+                <button class="cancel-btn" onclick="cancelEdit()">❌ انصراف</button>
             </div>
         </div>
     </div>
