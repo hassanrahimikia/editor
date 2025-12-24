@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ارائه من</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body>
+    <div class="container">
+        <button id="editBtn" class="edit-btn">ویرایش</button>
+        
+        <div id="viewMode">
+            <h1 id="titleView">عنوان ارائه</h1>
+            <div id="contentView" class="content"></div>
+        </div>
+
+        <div id="editMode" style="display: none;">
+            <h2>حالت ویرایش</h2>
+            <input type="text" id="titleEdit" placeholder="عنوان" class="input-field">
+            
+            <div class="section">
+                <h3>محتوای متنی:</h3>
+                <textarea id="textEdit" rows="10" class="textarea-field"></textarea>
+            </div>
+
+            <div class="section">
+                <h3>کد (به تفکیک با --- ):</h3>
+                <textarea id="codeEdit" rows="15" class="textarea-field"></textarea>
+                <small>فرمت: زبان|کد --- زبان|کد</small>
+            </div>
+
+            <button id="saveBtn" class="save-btn">ذخیره تغییرات</button>
+            <button id="cancelBtn" class="cancel-btn">انصراف</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
